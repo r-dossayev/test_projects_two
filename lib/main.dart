@@ -33,6 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    const e = {"USA":"America","China":"Asia", "Kazakhstan":"Asia", "Egypt":"Africa", "Spain":"Europa"};
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Theme
@@ -41,12 +42,15 @@ class _MyHomePageState extends State<MyHomePage> {
               .inversePrimary,
           title: Text("widget.title"),
         ),
-        body: ListView.builder(
-
-            itemCount: 12,
+        body: ListView.separated(
+          separatorBuilder: (context, i)=>Divider(height: 10,),
+            itemCount: e.length,
             itemBuilder: (context, i) =>
-                ListTile(title: Text("tasak"+ i.toString()), subtitle: Text("bas"),
-                trailing: SvgPicture.asset("images/svg/user.svg",height: 30,width: 30,),)
+                ListTile(title: Text(e.keys.elementAt(i)), subtitle: Text(e.values.elementAt(i)),
+                  leading: SvgPicture.asset("images/svg/user.svg",height: 30,width: 30,),
+                  trailing: Icon(Icons.arrow_forward_ios),),
+
+
         ),
     );
   }
