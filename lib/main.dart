@@ -46,11 +46,9 @@ class _MyHomePageState extends State<MyHomePage> {
           separatorBuilder: (context, i)=>Divider(height: 10,),
             itemCount: e.length,
             itemBuilder: (context, i) =>
-                ListTile(title: Text(e.keys.elementAt(i)), subtitle: Text(e.values.elementAt(i)),
+                ListTile(title: Text(e.keys.elementAt(i)), subtitle: Text(e.values.elementAt(i),style: TextStyle(color: Colors.red),),
                   leading: SvgPicture.asset("images/svg/user.svg",height: 30,width: 30,),
-                  trailing: Icon(Icons.arrow_forward_ios),),
-
-
+                  trailing: const Icon(Icons.arrow_forward_ios),),
         ),
     );
   }
