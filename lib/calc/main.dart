@@ -1,157 +1,87 @@
-// import 'package:flutter/material.dart';
-//
-// void main() => runApp(CalcApp());
-//
-// class CalcApp extends StatelessWidget {
-//   const CalcApp({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return const MaterialApp(
-//       home: MainPage(),
-//     );
-//   }
-// }
-//
-// class MainPage extends StatefulWidget {
-//   const MainPage({super.key});
-//
-//   @override
-//   State<StatefulWidget> createState() {
-//     return _MainPageState();
-//   }
-// }
-//
-// class _MainPageState extends State<MainPage> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("qw"),
-//       ),
-//       body: diver(),
-//     );
-//   }
-// }
-//
-// Widget diver() {
-//   return Column(
-//     children: [
-//       Container(
-//         height: 50,
-//         decoration: const BoxDecoration(
-//           color: Color(0xff121313),
-//         ),
-//         child: Row(
-//           mainAxisSize: MainAxisSize.max,
-//           mainAxisAlignment: MainAxisAlignment.spaceAround,
-//           children: [
-//             Icon(
-//               Icons.compare_arrows_rounded,
-//               color: Colors.white,
-//             ),
-//             Icon(
-//               Icons.add,
-//               color: Color(0xffb23d10),
-//             ),
-//             Icon(
-//               Icons.menu_open,
-//               color: Colors.white,
-//             ),
-//             Icon(
-//               Icons.home_outlined,
-//               color: Colors.white,
-//             ),
-//             Icon(
-//               Icons.more_vert,
-//               color: Colors.white,
-//             ),
-//           ],
-//         ),
-//       ),
-//       textable(),
-//       Divider(height: 0.3,),
-//       numbers(),
-//     ],
-//   );
-// }
-//
-// Widget textable() {
-//   return Container(
-//     height: 250,
-//     padding: EdgeInsets.fromLTRB(0, 200, 30, 0),
-//     width: double.infinity,
-//     decoration: const BoxDecoration(
-//       color: Color(0xff121313),
-//     ),
-//     child: Align(
-//       alignment: Alignment.centerRight,
-//       child: Text(
-//         "0",
-//         style: TextStyle(fontSize: 40, color: Color(0xfff7fdfd)),
-//
-//       ),
-//     ),
-//   );
-// }
-//
-// Widget numbers(){
-//   return Container(
-//     height: 400,
-//     decoration: BoxDecoration(color: Color(0xff121313)),
-//
-//     child: Row(
-//
-//       mainAxisAlignment: MainAxisAlignment.spaceAround,
-//       children: [
-//        Column(),
-//        Column(),
-//        Column(),
-//        Column(),
-//       ],
-//
-//     ),
-//
-//   );
-// }
+
+import 'dart:js_interop';
+
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
+
+import 'calc_button/calc_button.dart';
+import 'navbar/navbar.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: CalculatorScreen(),
     );
   }
 }
 
-class CalculatorScreen extends StatelessWidget {
-  final List<List<String>> buttonLabels = [
-    ['7', '8', '9', '/'],
-    ['4', '5', '6', 'x'],
-    ['1', '2', '3', '-'],
-    ['0', '.', '=', '+'],
-  ];
+class CalculatorScreen extends StatefulWidget {
+
+   const CalculatorScreen({super.key});
+
+  @override
+    State<CalculatorScreen> createState() => _CalculatorScreenState();
+}
+
+
+class  _CalculatorScreenState extends State<CalculatorScreen>{
+  String calcValue = "0";
+
+  void setCalcValue (s)=> setState(() =>{if(calcValue == "0") calcValue = s else calcValue +=s } );
+  void deleteAll (s)=> setState(() => calcValue = "0");
+  void deleteSingle (s)=> setState(() => calcValue =  calcValue.substring(0, calcValue.length - 1));
+  void evaluateExpression(s) {
+    try {
+      String modifiedExpression = calcValue.replaceAll('x', '*'); // change 'x' to '*'
+      Parser parser = Parser();
+      Expression exp = parser.parse(modifiedExpression);
+      ContextModel contextModel = ContextModel();
+      double evalResult = exp.evaluate(EvaluationType.REAL, contextModel);
+      setState(() {
+        calcValue = evalResult.toString();
+      });
+    } catch (e) {
+      setState(() {
+        calcValue = 'Error';
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
+
+    final List<List<Map>> buttonLabels2 = [
+      [{'value':'AC','method':deleteAll}, {'value':'<-', 'method':deleteSingle}, {'value':'%'},],
+      [{'value':'7'}, {'value':'8',}, {'value':'9'}, {'value':'/'},],
+      [{'value':'4'}, {'value':'5',}, {'value':'6'}, {'value':'x'},],
+      [{'value':'1'}, {'value':'2',}, {'value':'3'}, {'value':'-'},],
+      [{'value':'0'}, {'value':'.',}, {'value':'=', 'method':evaluateExpression}, {'value':'+'},],
+    ];
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Calculator'),
-      ),
       body: Column(
         children: [
+          Container(
+            height: 50,
+            decoration: const BoxDecoration(
+              color: Color(0xff121313),
+            ),
+            child: Navbar(),
+          ),
           Expanded(
             child: Container(
               color: Colors.black,
               alignment: Alignment.centerRight,
               padding: EdgeInsets.all(20),
               child: Text(
-                '0',
+                calcValue,
                 style: TextStyle(fontSize: 48, color: Colors.white),
               ),
             ),
@@ -165,13 +95,13 @@ class CalculatorScreen extends StatelessWidget {
             child: Container(
               color: Colors.black,
               child: Column(
-                children: buttonLabels.map((row) {
+                children: buttonLabels2.map((row) {
                   return Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: row.map((label) {
                         return Expanded(
-                          child: CalculatorButton(label: label),
+                          child: CalculatorButton(label: label['value'], onTap: label['method']??setCalcValue,),
                         );
                       }).toList(),
                     ),
@@ -184,24 +114,9 @@ class CalculatorScreen extends StatelessWidget {
       ),
     );
   }
+
+
 }
 
-class CalculatorButton extends StatelessWidget {
-  final String label;
 
-  const CalculatorButton({super.key, required this.label});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.grey[800],
-      child: TextButton(
-        onPressed: () {},
-        child: Text(
-          label,
-          style: TextStyle(fontSize: 24, color: Colors.white),
-        ),
-      ),
-    );
-  }
-}
